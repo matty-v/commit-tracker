@@ -1,0 +1,186 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "GitHub Webhook API",
+    "description": "API for handling GitHub webhooks and retrieving commit information.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "url": "http://www.example.com/support",
+      "email": "support@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com/v1",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "webhooks",
+      "description": "Operations related to GitHub webhooks"
+    },
+    {
+      "name": "commits",
+      "description": "Operations related to commits"
+    }
+  ],
+  "paths": {
+    "/webhook": {
+      "post": {
+        "operationId": "handleWebhook",
+        "tags": [
+          "webhooks"
+        ],
+        "summary": "Handle GitHub webhook for commits",
+        "description": "This endpoint receives webhook events from GitHub when a commit is made.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GitHubWebhook"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Webhook processed successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/commits": {
+      "get": {
+        "operationId": "getCommits",
+        "tags": [
+          "commits"
+        ],
+        "summary": "Get a list of commits",
+        "description": "This endpoint retrieves a list of commits made to the repository.",
+        "responses": {
+          "200": {
+            "description": "A list of commits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Commit"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GitHubWebhook": {
+        "type": "object",
+        "required": [
+          "ref",
+          "commits"
+        ],
+        "properties": {
+          "ref": {
+            "type": "string",
+            "description": "The Git reference for the commit.",
+            "example": "refs/heads/main"
+          },
+          "commits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Commit"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "Commit": {
+        "type": "object",
+        "required": [
+          "id",
+          "message",
+          "timestamp",
+          "author"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the commit.",
+            "example": "abc123def456"
+          },
+          "message": {
+            "type": "string",
+            "description": "The commit message.",
+            "example": "Fix bug in the application"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time when the commit was made.",
+            "example": "2023-10-01T12:34:56Z"
+          },
+          "author": {
+            "$ref": "#/components/schemas/Author"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Author": {
+        "type": "object",
+        "required": [
+          "name",
+          "email"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the author.",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "The email of the author.",
+            "example": "john.doe@example.com"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
